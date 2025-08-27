@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="bg">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>ICB Karting Challenge</title>
 <style>
   :root {
@@ -13,351 +14,246 @@
     --muted: #a6b0c0;
     --accent: #E99945;
     --line: #222a36;
-    --good: #00d08a;
-    --bad: #ff5a5f;
-    --battle-1: #845ef7;
-    --battle-2: #4dabf7;
+    --hover: #0c111a;
+    --success: #26a269;
+    --danger: #f25056;
   }
-  html, body {
-    margin: 0; padding: 0; background: var(--bg); color: var(--text);
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif; 
-  }
-  .top {
-    position: relative; padding: 48px 24px 0;
-    background:
-      radial-gradient(1000px 280px at 80% -80%, rgba(0,255,169,0.16), transparent 60%),
-      radial-gradient(800px 260px at 10% -60%, rgba(255,90,95,0.14), transparent 60%),
-      linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
-    overflow: hidden;
-  }
-  .flag {
-    position: absolute; inset: -120px -120px auto auto; width: 380px; height: 180px; opacity: .06;
-    background: repeating-linear-gradient(45deg, #fff 0 16px, #000 16px 32px);
-    transform: rotate(8deg) skew(-8deg);
-    mix-blend-mode: overlay; border-radius: 16px; filter: blur(1px);
-  }
-  h1 { margin: 0 0 12px; font-weight: 800; letter-spacing: .5px; 
-       font-size: clamp(26px, 3.6vw, 46px); text-shadow: 0 0 12px rgba(0,255,169,0.25); }
-  .subtitle { color: var(--muted); font-size: 14px; letter-spacing: .4px; }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px 80px; }
-  .card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)) , var(--card);
-           border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 28px rgba(0,0,0,.4); }
-  .toolbar { display:flex; gap:12px; align-items:center; padding:14px 14px; border-bottom:1px solid var(--line);
-              background: var(--card-2); }.pill { font-size:12px; padding:8px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted); cursor:pointer; user-select:none; }
-  .pill.active { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 2px rgba(233,153,69,0.18) inset; }
-  table { width:100%; border-collapse:separate; border-spacing:0; font-size:15px; }
-  thead th { position:sticky; top:0; z-index:2; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)) , var(--card);
-             border-bottom:1px solid var(--line); letter-spacing:.4px; font-weight:700; text-align:left; padding:14px 16px; }
-  tbody td { padding:14px 16px; border-bottom:1px solid var(--line); }
-  tbody tr:hover td { background:#0c1220; }
-  .name { font-weight:600; }
-  .time { font-variant-numeric: tabular-nums; letter-spacing:.2px; }
-  .diff { font-variant-numeric: tabular-nums; }
-  .good { color: var(--good); }
-  .bad { color: var(--bad); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: radial-gradient(1200px 600px at 20% -10%, rgba(233,153,69,.16), transparent 70%), var(--bg); color: var(--text); font: 16px/1.45 Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; }
+  .wrap { max-width: 1024px; margin: 32px auto 80px; padding: 0 16px; }
+  .title { display: flex; align-items: center; gap: 16px; }
+  .title h1 { font-size: 48px; margin: 0; letter-spacing: .5px; text-shadow: 0 2px 24px rgba(233,153,69,.2); }
+  .title small { margin-top: 8px; display: block; color: var(--muted); }
+  .badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: rgba(233,153,69,.1); border: 1px solid rgba(233,153,69,.24); color: var(--text); font-weight: 600; }
+  .badge img { width: 28px; height: 28px; }
+  .card { background: linear-gradient(180deg, var(--card), var(--card-2)); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,.35); overflow: hidden; }
+  .toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 14px 16px; background: rgba(12,17,26,.35); }
+  .search { position: relative; flex: 1; }
+  .search input { width: 100%; background: var(--hover); border: 1px solid var(--line); color: var(--text); border-radius: 12px; outline: none; padding: 12px 16px; font-size: 15px; }
+  .sorts { display: flex; gap: 8px; }
+  .sort-btn { background: var(--hover); border: 1px solid var(--line); color: var(--text); padding: 10px 12px; border-radius: 999px; cursor: pointer; font-weight: 600; }
+  .sort-btn.active { background: rgba(233,153,69,.12); border-color: rgba(233,153,69,.45); }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { text-align: left; color: var(--muted); font-weight: 600; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  tbody td { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  tbody tr:hover { background: rgba(12,17,26,.35); }
+  .right { text-align: right; }
   .muted { color: var(--muted); }
-  .neutral { color: #fff; }
-  .pos { font-variant-numeric: tabular-nums; text-align:center; color: var(--muted); width: 4%; white-space: normal; padding-left: 24px; }
-  .pos .medal { display:inline-block; font-size:1.2em; line-height:1; vertical-align:middle; }
-  .pos-head { text-align:center; font-variant-numeric: tabular-nums; color: var(--muted); padding-left: 24px; }
-  .foot { padding: 12px 16px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; align-items:center; }
-
-  /* Battle cluster visuals */
-  .battle-row { position: relative; box-shadow: inset 4px 0 0 var(--cluster-color, #845ef7);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--cluster-color, #845ef7) 12%, transparent) 0%, transparent 75%);
-}
-  .battle-badge { 
-  margin-left: 8px; font-size: 12px; padding: 2px 6px; 
-  border:1px solid var(--cluster-color, #845ef7); border-radius:999px; 
-  background: color-mix(in srgb, var(--cluster-color, #845ef7) 20%, transparent); 
-  color:#e9eef5; 
-}
-.cluster-start { box-shadow: inset 4px 0 0 var(--cluster-color, #845ef7), 0 -1px 0 0 var(--cluster-color, #845ef7); }
-  .pulse { animation: pulseGlow 1.5s infinite; }
-  @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(0,255,169,0.25); } 70% { box-shadow: 0 0 0 10px rgba(0,255,169,0.0); } 100% { box-shadow: 0 0 0 0 rgba(0,255,169,0.0); } }
-.logo-emoji { font-size: 1.3em; margin-right: 8px; }
-.medal.gold, .medal.silver, .medal.bronze { text-shadow: none; }
-.sort-label { color: var(--muted); font-size: 14px; letter-spacing:.2px; opacity:.95; }
-/* Custom tooltips for sort pills */
-.pill[data-tip]{ position:relative; }
-.pill[data-tip]::after{
-  content: attr(data-tip);
-  position:absolute;
-  bottom: calc(100% + 8px);
-  left:50%;
-  transform: translateX(-50%) translateY(4px);
-  background: var(--accent);
-  color: #0b0e13;
-  font-size:12px;
-  line-height:1;
-  padding:8px 10px;
-  border-radius:3px;
-  white-space: nowrap;
-  pointer-events:none;
-  opacity:0;
-  box-shadow: 0 6px 18px rgba(0,0,0,.35);
-  transition: opacity .15s ease, transform .15s ease;
-  z-index: 20;
-}
-.pill[data-tip]::before{
-  content:"";
-  position:absolute;
-  bottom: calc(100% + 2px);
-  left:50%;
-  transform: translateX(-50%);
-  border:6px solid transparent;
-  border-top-color: var(--accent);
-  opacity:0;
-  transition: opacity .15s ease;
-  z-index: 19;
-}
-.pill[data-tip]:hover::after, .pill[data-tip]:focus-visible::after{ opacity:1; transform: translateX(-50%) translateY(0); }
-.pill[data-tip]:hover::before, .pill[data-tip]:focus-visible::before{ opacity:1; }
-/* Ensure tooltips can overlay table */
-.toolbar { position: relative; z-index: 5; }
-
-/* Reposition tooltips BELOW the pills (inside the card bounds) */
-.pill[data-tip]::after{ top: calc(100% + 8px); bottom: auto; transform: translateX(-50%) translateY(-4px); }
-.pill[data-tip]::before{ top: calc(100% + 2px); bottom: auto; border:6px solid transparent; border-bottom-color: var(--accent); }
-.pill[data-tip]:hover::after, .pill[data-tip]:focus-visible::after{ opacity:1; transform: translateX(-50%) translateY(0); }
-/* Battle badge tooltips (use cluster color) */
-.battle-badge[data-tip]{ position:relative; z-index:2; }
-.battle-badge[data-tip]::after{
-  content: attr(data-tip);
-  position:absolute;
-  top: calc(100% + 8px); /* show below the badge */
-  left: 0;
-  transform: translateY(-4px);
-  background: var(--cluster-color, #845ef7);
-  color: #0b0e13; /* good contrast on bright cluster colors */
-  font-size:12px; line-height:1;
-  padding:8px 10px; border-radius:3px; white-space: nowrap; pointer-events:none;
-  opacity:0; box-shadow: 0 6px 18px rgba(0,0,0,.35);
-  transition: opacity .15s ease, transform .15s ease; z-index: 1000;
-}
-.battle-badge[data-tip]::before{
-  content:""; position:absolute; top: calc(100% + 2px); left: 12px;
-  border:6px solid transparent; border-bottom-color: var(--cluster-color, #845ef7);
-  opacity:0; transition: opacity .15s ease; z-index: 999;
-}
-.battle-badge[data-tip]:hover::after, .battle-badge[data-tip]:focus-visible::after{ opacity:1; transform: translateY(0); }
-.battle-badge[data-tip]:hover::before, .battle-badge[data-tip]:focus-visible::before{ opacity:1; }
-.row-raise { position: relative; z-index: 1500; }
-/* Tooltip sizing: content width (no cap) */
-.pill[data-tip]::after,
-.battle-badge[data-tip]::after{
-  white-space: nowrap;
-}
+  .delta { display: inline-flex; align-items: center; gap: 6px; }
+  .delta .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: var(--line); }
+  .delta .up { background: var(--success); }
+  .delta .down { background: var(--danger); }
+  .foot { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 13px; padding: 12px 16px; }
+  .check { filter: drop-shadow(0 3px 18px rgba(255,255,255,.4)); }
+  .note { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .rank { width: 52px; }
+  .name { min-width: 220px; }
+  .num { width: 92px; text-align: right; }
+  .live { position: fixed; top: 10px; right: 10px; font-size: 11px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: rgba(12,17,26,.55); color: var(--muted); }
+  html.data-external .live::after { content: "LIVE: raw.githubusercontent.com"; color: var(--accent); margin-left: 6px; }
+  html.data-error .live::after { content: "FALLBACK: embedded"; color: var(--danger); margin-left: 6px; }
 </style>
 </head>
 <body>
-  <div class="top">
-    <div class="wrap">
-      <div class="flag" aria-hidden="true"></div>
-      <h1><span class="logo-emoji" aria-hidden="true">🏎️</span>&nbsp; ICB Karting Challenge 🏁</h1>
-      <div class="subtitle">Refactor на траекторията → по-бърза обиколка.</div>
-    </div>
-  </div>
 
-  <div class="wrap">
-    <div class="card">
-      <div class="toolbar">
-        <span class="sort-label">Sort by:</span>
-        <div class="pill sort-btn" data-sort="best" data-tip="Best Lap Ever" aria-label="Best Lap Ever">Best Lap</div>
-        <div class="pill sort-btn" data-sort="first" data-tip="Best lap from your first day with the team" aria-label="Best lap from your first day with the team">First-Day Best</div>
-        <div class="pill sort-btn" data-sort="improve" data-tip="The difference between your best lap from the first day and your best lap ever (lower is better)" aria-label="The difference between your best lap from the first day and your best lap ever (lower is better)">Improvement</div>
+<div class="live"></div>
+<div class="wrap">
+  <div class="title">
+    <span class="badge">
+      <img alt="" src="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 16h10l3-6h-6l-1.5 3h-2L9 10H3l4 6Z' fill='%23E99945'/%3E%3C/svg%3E"/>
+      ICB Karting Challenge
+    </span>
+    <h1>ICB Karting Challenge 🏁</h1>
+  </div>
+  <small class="note">Refactor на траекторията → по-бърза обиколка.</small>
+
+  <div class="card">
+    <div class="toolbar">
+      <div class="search">
+        <input id="q" placeholder="Search driver..." type="search"/>
       </div>
-      <div style="overflow:auto; max-height:70vh;">
-        <table id="table">
-          <thead>
-            <tr>
-              <th class="pos-head" style="width:4%;">№</th>
-              <th style="width:28%;">Name</th>
-              <th>First-Day Lap</th>
-              <th>Best Lap Ever</th>
-              <th>Improvement</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="foot">
-        <div> 🏁 highlights close battles (≤ 1.0s).</div>
-        <div id="count"></div>
+      <div class="sorts">
+        <button class="sort-btn" data-sort="best">Sort by Best</button>
+        <button class="sort-btn" data-sort="first">Sort by First</button>
+        <button class="sort-btn" data-sort="az">Sort A–Z</button>
+        <button class="sort-btn" data-sort="delta">Sort by Improvement</button>
       </div>
     </div>
-  </div>
 
-<script id="data" type="application/json">[{"name": "Aleksandar Zhelyazkov", "first_time": "1:09.036", "best_time": "1:09.036", "first_ms": 69036, "best_ms": 69036}, {"name": "Nikola Stanoichev", "first_time": "1:12.617", "best_time": "1:12.617", "first_ms": 72617, "best_ms": 72617}, {"name": "Yordan Parladiyski", "first_time": "1:12.968", "best_time": "1:12.968", "first_ms": 72968, "best_ms": 72968}, {"name": "Georgi Mihalev", "first_time": "1:15.215", "best_time": "1:15.215", "first_ms": 75215, "best_ms": 75215}, {"name": "Dragomir Yanev", "first_time": "1:15.319", "best_time": "1:15.319", "first_ms": 75319, "best_ms": 75319}, {"name": "Dimitar Slavchev", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Martin Atanasov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Kostadin Kostadinov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Sergey Prudnikov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Yavor Vasilev", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Varban Varbanov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}]</script>
+    <table>
+      <thead>
+        <tr>
+          <th class="rank">№</th>
+          <th class="name">Name</th>
+          <th>First Session Lap</th>
+          <th>Best Lap Ever</th>
+          <th class="right">Improvement</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <div class="foot">
+      <span class="muted">🏁 highlights close battles (≤ 1.0s).</span>
+      <span id="count" class="muted">—</span>
+    </div>
+  </div>
+</div>
+
+<!-- Вградените данни от v1.3 остават като fallback -->
+<script id="data" type="application/json">[
+  {"name":"Aleksandar Zhelyazkov","first_time":"1:09.036","best_time":"1:09.036"},
+  {"name":"Nikola Stanoichev","first_time":"1:12.617","best_time":"1:12.617"},
+  {"name":"Yordan Parladiyski","first_time":"1:12.968","best_time":"1:12.968"},
+  {"name":"Georgi Mihalev","first_time":"1:15.215","best_time":"1:15.215"},
+  {"name":"Dragomir Yanev","first_time":"1:15.319","best_time":"1:15.319"},
+  {"name":"Dimitar Slavchev","first_time":"—","best_time":"—"},
+  {"name":"Martin Atanasov","first_time":"—","best_time":"—"},
+  {"name":"Kostadin Kostadinov","first_time":"—","best_time":"—"},
+  {"name":"Sergey Prudnikov","first_time":"—","best_time":"—"},
+  {"name":"Yavor Vasilev","first_time":"—","best_time":"—"},
+  {"name":"Varban Varbanov","first_time":"—","best_time":"—"}
+]</script>
+
 <script>
-function parseTimeToMs(s) {
-  if (!s || s === "—") return null;
-  s = String(s).trim().replace(",", ".");
-  const parts = s.split(":");
-  if (parts.length !== 2) return null;
-  const m = parseInt(parts[0], 10);
-  const [secStr, msStr = "0"] = parts[1].split(".");
-  const sec = parseInt(secStr, 10);
-  const ms = parseInt((msStr + "000").slice(0,3), 10);
-  return (m*60 + sec)*1000 + ms;
-}
-function formatMs(ms) {
-  if (ms === null || ms === undefined) return "—";
-  ms = Math.round(ms);
-  const m = Math.floor(ms/60000);
-  const rem = ms % 60000;
-  const s = Math.floor(rem/1000);
-  const mm = rem % 1000;
-  return `${m}:${String(s).padStart(2,"0")}.${String(mm).padStart(3,"0")}`;
+(async () => {
+
+// === Variant B (RAW GitHub + nocache) ===
+// 1) Четем от външен JSON (ако падне → fallback към вградените).
+// 2) Нормализираме ключовете към формата на v1.3 (best_time / first_time).
+const DATA_URL = 'https://raw.githubusercontent.com/collouur/Karting-ICB-Data/main/drivers.json'; 
+let RAW;
+try {
+  const url = DATA_URL + (DATA_URL.includes('?') ? '&' : '?') + 'v=' + Date.now();
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error('bad status ' + res.status);
+  const json = await res.json();
+  RAW = Array.isArray(json) ? json : (json && Array.isArray(json.drivers) ? json.drivers : []);
+  if (!RAW || RAW.length === 0) throw new Error('empty payload');
+  document.documentElement.classList.add('data-external'); // mark that we used external source
+  console.log('[ICB v1.3-B] Loaded from RAW GitHub:', url);
+} catch (e) {
+  RAW = JSON.parse(document.getElementById('data').textContent);
+  document.documentElement.classList.add('data-error'); // mark fallback
+  console.warn('[ICB v1.3-B] Fallback to embedded data due to:', e);
 }
 
-const RAW = JSON.parse(document.getElementById('data').textContent);
-let rows = RAW.map(d => ({
-  name: d.name,
-  first_time: d.first_time,
-  best_time: (d.best_time && d.best_time !== "—") ? d.best_time : d.first_time,
-  first_ms: (d.first_ms != null) ? d.first_ms : parseTimeToMs(d.first_time),
-  best_ms:  (d.best_ms  != null) ? d.best_ms  : ( (d.best_time && d.best_time !== "—") ? parseTimeToMs(d.best_time) : parseTimeToMs(d.first_time) ),
+// Normalize keys for legacy UI (bestLap/firstLap → best_time/first_time)
+RAW = RAW.map(d => ({ 
+  ...d, 
+  best_time: d.best_time ?? d.bestLap ?? d.best ?? '—', 
+  first_time: d.first_time ?? d.firstLap ?? d.first ?? '—' 
 }));
 
-function sortByBest() { rows.sort((a,b) => (a.best_ms??Infinity) - (b.best_ms??Infinity)); }
-function sortByFirst() { rows.sort((a,b) => (a.first_ms??Infinity) - (b.first_ms??Infinity)); }function sortByImprove() {
-  rows.sort((a,b) => {
-    const da = (a.best_ms == null || a.first_ms == null) ? Infinity : (a.best_ms - a.first_ms);
-    const db = (b.best_ms == null || b.first_ms == null) ? Infinity : (b.best_ms - b.first_ms);
-    return da - db;
-  });
-}
+// ===== UI / Logic (v1.3, без промени по визията) =====
 
-// Battle cluster detection (≤ 1000 ms between adjacent best times)
-function computeClusters(rows) {
-  const candidates = rows
-    .filter(r => r.best_ms != null)
-    .slice()
-    .sort((a,b) => a.best_ms - b.best_ms);
-
-  let clusters = [];
-  let current = [];
-  for (let i=0; i<candidates.length; i++) {
-    const cur = candidates[i];
-    if (current.length === 0) {
-      current.push(cur);
-      continue;
-    }
-    const prev = candidates[i-1];
-    const gap = cur.best_ms - prev.best_ms;
-    if (gap <= 1000) {
-      // close enough -> same cluster
-      current.push(cur);
-    } else {
-      if (current.length >= 2) clusters.push(current);
-      current = [cur];
-    }
+function pad(n){ return n<10 ? '0'+n : n; }
+function parseTime(str){
+  if (!str || str==='—') return Number.POSITIVE_INFINITY;
+  // formats: M:SS.mmm  or  SS.mmm
+  if (/^\d+:\d{2}\.\d{3}$/.test(str)) {
+    const [m, rest] = str.split(':');
+    const [s, ms] = rest.split('.');
+    return (+m)*60*1000 + (+s)*1000 + (+ms);
   }
-  if (current.length >= 2) clusters.push(current);
-
-  // Map driver to cluster index
-  const map = new Map();
-  clusters.forEach((group, idx) => {
-    group.forEach(r => map.set(r.name, idx));
-  });
-  return map;
+  if (/^\d{1,2}\.\d{3}$/.test(str)) {
+    const [s, ms] = str.split('.');
+    return (+s)*1000 + (+ms);
+  }
+  return Number.POSITIVE_INFINITY;
+}
+function fmtDelta(ms){
+  if (!isFinite(ms)) return '—';
+  const sign = ms<0 ? '−' : '+';
+  ms = Math.abs(ms);
+  const s = Math.floor(ms/1000);
+  const rem = ms%1000;
+  return `${sign}${s}.${String(rem).padStart(3,'0')}s`;
 }
 
-// Assign cluster colors (first version: single color, but we'll keep function for potential future use)
-function clusterColor(idx) {
-  const root = getComputedStyle(document.documentElement);
-  return (idx % 2 === 0)
-    ? root.getPropertyValue('--battle-1')
-    : root.getPropertyValue('--battle-2');
-}
+const rowsEl = document.getElementById('rows');
+const countEl = document.getElementById('count');
+const qEl = document.getElementById('q');
 
-function ordinal(n){ const s=["th","st","nd","rd"], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+let rows = RAW.map((d, i) => {
+  const best = d.best_time || '—';
+  const first = d.first_time || '—';
+  const bestMs = parseTime(best);
+  const firstMs = parseTime(first);
+  const delta = isFinite(bestMs) && isFinite(firstMs) ? (bestMs - firstMs) : Number.NaN;
+  return {
+    rank: '—',
+    name: d.name || '—',
+    first, best,
+    delta,
+    deltaStr: isNaN(delta) ? '—' : fmtDelta(delta),
+    bestMs
+  };
+});
 
-function render(rows) {
-  const clusterMap = computeClusters(rows);
+function render(list){
+  const q = (qEl.value || '').toLowerCase().trim();
+  const filt = q ? list.filter(r => r.name.toLowerCase().includes(q)) : list;
 
-  const filtered = rows.slice();
-  // Compute top position per cluster in current order
-  const clusterTopPos = new Map();
-  filtered.forEach((r, idx) => {
-    if (clusterMap.has(r.name)) {
-      const ci = clusterMap.get(r.name);
-      const pos = idx + 1;
-      if (!clusterTopPos.has(ci) || pos < clusterTopPos.get(ci)) {
-        clusterTopPos.set(ci, pos);
-      }
-    }
-  });
-  const tb = document.querySelector('#table tbody');
-  tb.innerHTML = "";
-  let prevCluster = null;
-  filtered.forEach((r, i) => {
-    const tr = document.createElement('tr');
-    // Battle styling
-    let clusterIdx = null;
-    if (clusterMap.has(r.name)) {
-      clusterIdx = clusterMap.get(r.name);
-      tr.classList.add('battle-row');
-      tr.style.setProperty('--cluster-color', clusterColor(clusterIdx));
-      if (prevCluster !== clusterIdx) tr.classList.add('cluster-start');
-    }
-    prevCluster = clusterIdx === null ? prevCluster : clusterIdx;
-    const diffMs = (r.best_ms == null || r.first_ms == null) ? null : (r.best_ms - r.first_ms);
-    if (diffMs != null && Math.abs(diffMs) <= 300) {
-      tr.classList.add('pulse');
-    }
-
-    const isEmpty = (r.first_ms == null && r.best_ms == null);
-    const medal = !isEmpty && (i===0?'🥇': i===1?'🥈': i===2?'🥉': null);
-    const medalCls = !isEmpty && (i===0?'gold': i===1?'silver': i===2?'bronze': null);
-    const posCell = isEmpty ? '—' : (medal ? `<span class="medal ${medalCls}">${medal}</span>` : (i+1));
-
-    const badgeHTML = (clusterIdx != null) ? `<span class="battle-badge" data-tip="Battle for ${ordinal(clusterTopPos.get(clusterIdx)||0)} position">🏁 Battle</span>` : '';
-
-    tr.innerHTML = `
-      <td class=\"pos\">${posCell}</td>
-      <td class="name">${r.name} ${badgeHTML}</td>
-      <td class="time">${r.first_time ?? (r.first_ms != null ? formatMs(r.first_ms) : '—')}</td>
-      <td class="time">${r.best_time ?? (r.best_ms != null ? formatMs(r.best_ms) : '—')}</td>
-      <td class=\"diff ${diffMs==null? 'muted' : (diffMs<0? 'good' : (diffMs>0? 'bad' : 'neutral'))}\">
-        <span class="arrow">${diffMs==null? '•' : (diffMs<0? '▼' : (diffMs>0? '▲' : '→'))}</span>
-        <span>${diffMs==null? '—' : (diffMs/1000).toFixed(3).replace(/^-/, '−') + 's'}</span>
+  const html = filt.map((r, idx) => `
+    <tr>
+      <td class="rank">—</td>
+      <td class="name">${r.name}</td>
+      <td>${r.first}</td>
+      <td>${r.best}</td>
+      <td class="right">
+        <span class="delta"><i class="dot ${r.delta<0 ? 'up' : (r.delta>0?'down':'')}"></i>${r.deltaStr}</span>
       </td>
-    `;
-    tb.appendChild(tr);
-  });
-  document.getElementById('count').textContent = `${filtered.length} drivers`;
+    </tr>
+  `).join('');
+  rowsEl.innerHTML = html;
+  countEl.textContent = `${filt.length} drivers`;
 }
 
-document.querySelectorAll('.sort-btn').forEach(btn => {
-  btn.addEventListener('click', e => {
-    document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    const k = btn.dataset.sort;
-    if (k === 'best') sortByBest();
-    else if (k === 'first') sortByFirst();
-    else if (k === 'improve') sortByImprove();
-    
-    render(rows);
+function clearSortActives(){
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+}
+function sortByBest(){
+  rows.sort((a,b)=>a.bestMs-b.bestMs);
+}
+function sortByFirst(){
+  rows.sort((a,b)=>parseTime(a.first)-parseTime(b.first));
+}
+function sortByAZ(){
+  rows.sort((a,b)=>a.name.localeCompare(b.name));
+}
+function sortByDelta(){
+  rows.sort((a,b)=>{
+    const ad = isNaN(a.delta)?Number.POSITIVE_INFINITY:a.delta;
+    const bd = isNaN(b.delta)?Number.POSITIVE_INFINITY:b.delta;
+    return ad-bd;
   });
+}
+
+document.querySelector('.sort-btn[data-sort="best"]').addEventListener('click', () => {
+  clearSortActives(); document.querySelector('.sort-btn[data-sort="best"]').classList.add('active');
+  sortByBest(); render(rows);
+});
+document.querySelector('.sort-btn[data-sort="first"]').addEventListener('click', () => {
+  clearSortActives(); document.querySelector('.sort-btn[data-sort="first"]').classList.add('active');
+  sortByFirst(); render(rows);
+});
+document.querySelector('.sort-btn[data-sort="az"]').addEventListener('click', () => {
+  clearSortActives(); document.querySelector('.sort-btn[data-sort="az"]').classList.add('active');
+  sortByAZ(); render(rows);
+});
+document.querySelector('.sort-btn[data-sort="delta"]').addEventListener('click', () => {
+  clearSortActives(); document.querySelector('.sort-btn[data-sort="delta"]').classList.add('active');
+  sortByDelta(); render(rows);
 });
 
-// Raise hovered battle row above neighbors so its tooltip isn't covered
-const tableEl = document.getElementById('table');
-tableEl.addEventListener('mouseover', (e) => {
-  const badge = e.target.closest('.battle-badge');
-  if (badge) badge.closest('tr')?.classList.add('row-raise');
-});
-tableEl.addEventListener('mouseout', (e) => {
-  const badge = e.target.closest('.battle-badge');
-  if (badge) badge.closest('tr')?.classList.remove('row-raise');
-});
+document.getElementById('q').addEventListener('input', () => render(rows));
 
 // Initial sort by Best
 sortByBest();
 document.querySelector('.sort-btn[data-sort="best"]').classList.add('active');
 render(rows);
-</script>
+
+})();</script>
 </body>
 </html>
