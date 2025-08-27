@@ -49,14 +49,9 @@
   .rank { width: 52px; }
   .name { min-width: 220px; }
   .num { width: 92px; text-align: right; }
-  .live { position: fixed; top: 10px; right: 10px; font-size: 11px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: rgba(12,17,26,.55); color: var(--muted); }
-  html.data-external .live::after { content: "LIVE: raw.githubusercontent.com"; color: var(--accent); margin-left: 6px; }
-  html.data-error .live::after { content: "FALLBACK: embedded"; color: var(--danger); margin-left: 6px; }
 </style>
 </head>
 <body>
-
-<div class="live"></div>
 <div class="wrap">
   <div class="title">
     <span class="badge">
@@ -118,34 +113,28 @@
 <script>
 (async () => {
 
-// === Variant B (RAW GitHub + nocache) ===
-// 1) Четем от външен JSON (ако падне → fallback към вградените).
-// 2) Нормализираме ключовете към формата на v1.3 (best_time / first_time).
-const DATA_URL = 'https://raw.githubusercontent.com/collouur/Karting-ICB-Data/main/drivers.json'; 
+// === Variant B (RAW GitHub + nocache, STRICT) ===
+// Зареждаме външен JSON (ако падне → fallback към вградените), без никакви промени по UI/markup.
 let RAW;
 try {
-  const url = DATA_URL + (DATA_URL.includes('?') ? '&' : '?') + 'v=' + Date.now();
+  const url = 'https://raw.githubusercontent.com/collouur/Karting-ICB-Data/main/drivers.json' + '?v=' + Date.now();
   const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error('bad status ' + res.status);
+  if (!res.ok) throw new Error('status ' + res.status);
   const json = await res.json();
   RAW = Array.isArray(json) ? json : (json && Array.isArray(json.drivers) ? json.drivers : []);
-  if (!RAW || RAW.length === 0) throw new Error('empty payload');
-  document.documentElement.classList.add('data-external'); // mark that we used external source
-  console.log('[ICB v1.3-B] Loaded from RAW GitHub:', url);
+  if (!RAW || RAW.length===0) throw new Error('empty payload');
 } catch (e) {
+  // Fallback към вградените данни (както е във v1.3)
   RAW = JSON.parse(document.getElementById('data').textContent);
-  document.documentElement.classList.add('data-error'); // mark fallback
-  console.warn('[ICB v1.3-B] Fallback to embedded data due to:', e);
 }
-
-// Normalize keys for legacy UI (bestLap/firstLap → best_time/first_time)
-RAW = RAW.map(d => ({ 
-  ...d, 
-  best_time: d.best_time ?? d.bestLap ?? d.best ?? '—', 
-  first_time: d.first_time ?? d.firstLap ?? d.first ?? '—' 
+// Нормализиране към очакванията на v1.3 (best_time / first_time)
+RAW = RAW.map(d => ({
+  ...d,
+  best_time: d.best_time ?? d.bestLap ?? d.best ?? '—',
+  first_time: d.first_time ?? d.firstLap ?? d.first ?? '—'
 }));
 
-// ===== UI / Logic (v1.3, без промени по визията) =====
+// ===== По-долу е оригиналната логика на v1.3 (без промени по визията) =====
 
 function pad(n){ return n<10 ? '0'+n : n; }
 function parseTime(str){
