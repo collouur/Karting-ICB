@@ -94,7 +94,7 @@
   </div>
 </div>
 
-<!-- Вградените данни от v1.3 остават като fallback -->
+<!-- Оригиналните вградени данни от v1.3 (fallback) -->
 <script id="data" type="application/json">[
   {"name":"Aleksandar Zhelyazkov","first_time":"1:09.036","best_time":"1:09.036"},
   {"name":"Nikola Stanoichev","first_time":"1:12.617","best_time":"1:12.617"},
@@ -111,68 +111,112 @@
 
 <script>
 (async () => {
-// === Variant B (RAW GitHub + nocache, STRICT) ===
+// === Variant B (външен JSON през GitHub RAW; без промени по UI/CSS) ===
 let RAW;
 try {
   const url = 'https://raw.githubusercontent.com/collouur/Karting-ICB-Data/main/drivers.json' + '?v=' + Date.now();
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('status ' + res.status);
   const json = await res.json();
+  // приемаме или { drivers: [...] }, или директно [...]
   RAW = Array.isArray(json) ? json : (json && Array.isArray(json.drivers) ? json.drivers : []);
-  if (!RAW || RAW.length===0) throw new Error('empty payload');
+  if (!RAW || RAW.length === 0) throw new Error('empty payload');
 } catch (e) {
+  // fallback към вградените данни (точно както v1.3)
   RAW = JSON.parse(document.getElementById('data').textContent);
 }
-// нормализиране към v1.3
+
+// нормализираме към очакванията на v1.3 (best_time / first_time)
 RAW = RAW.map(d => ({
   ...d,
   best_time: d.best_time ?? d.bestLap ?? d.best ?? '—',
   first_time: d.first_time ?? d.firstLap ?? d.first ?? '—'
 }));
 
-// === Оригиналната логика на v1.3 (без промени по визията) ===
+// ======= по-долу е оригиналната логика на v1.3 (без промени) =======
 function parseTime(str){
   if (!str || str==='—') return Number.POSITIVE_INFINITY;
   if (/^\d+:\d{2}\.\d{3}$/.test(str)) {
-    const [m, rest] = str.split(':'); const [s, ms] = rest.split('.');
+    const [m, rest] = str.split(':');
+    const [s, ms] = rest.split('.');
     return (+m)*60*1000 + (+s)*1000 + (+ms);
   }
-  if (/^\d{1,2}\.\d{3}$/.test(str)) { const [s, ms] = str.split('.'); return (+s)*1000 + (+ms); }
+  if (/^\d{1,2}\.\d{3}$/.test(str)) {
+    const [s, ms] = str.split('.');
+    return (+s)*1000 + (+ms);
+  }
   return Number.POSITIVE_INFINITY;
 }
-function fmtDelta(ms){ if (!isFinite(ms)) return '—'; const sign = ms<0 ? '−' : '+'; ms=Math.abs(ms); const s=Math.floor(ms/1000); const rem=ms%1000; return `${sign}${s}.${String(rem).padStart(3,'0')}s`; }
+function fmtDelta(ms){
+  if (!isFinite(ms)) return '—';
+  const sign = ms<0 ? '−' : '+';
+  ms = Math.abs(ms);
+  const s = Math.floor(ms/1000);
+  const rem = ms%1000;
+  return `${sign}${s}.${String(rem).padStart(3,'0')}s`;
+}
 
-const rowsEl=document.getElementById('rows'); const countEl=document.getElementById('count'); const qEl=document.getElementById('q');
-let rows = RAW.map(d => { const best=d.best_time||'—', first=d.first_time||'—', bestMs=parseTime(best), firstMs=parseTime(first), delta=(isFinite(bestMs)&&isFinite(firstMs))?(bestMs-firstMs):Number.NaN; return { name:d.name||'—', first, best, delta, deltaStr:isNaN(delta)?'—':fmtDelta(delta), bestMs }; });
+const rowsEl = document.getElementById('rows');
+const countEl = document.getElementById('count');
+const qEl = document.getElementById('q');
+
+let rows = RAW.map(d => {
+  const best = d.best_time || '—';
+  const first = d.first_time || '—';
+  const bestMs = parseTime(best);
+  const firstMs = parseTime(first);
+  const delta = (isFinite(bestMs) && isFinite(firstMs)) ? (bestMs - firstMs) : Number.NaN;
+  return {
+    name: d.name || '—',
+    first, best,
+    delta,
+    deltaStr: isNaN(delta) ? '—' : fmtDelta(delta),
+    bestMs
+  };
+});
 
 function render(list){
-  const q=(qEl.value||'').toLowerCase().trim();
-  const filt=q?list.filter(r=>r.name.toLowerCase().includes(q)):list;
-  rowsEl.innerHTML=filt.map(r=>`
+  const q = (qEl.value || '').toLowerCase().trim();
+  const filt = q ? list.filter(r => r.name.toLowerCase().includes(q)) : list;
+
+  rowsEl.innerHTML = filt.map(r => `
     <tr>
       <td class="rank">—</td>
       <td class="name">${r.name}</td>
       <td>${r.first}</td>
       <td>${r.best}</td>
-      <td class="right"><span class="delta"><i class="dot ${r.delta<0?'up':(r.delta>0?'down':'')}"></i>${r.deltaStr}</span></td>
-    </tr>`).join('');
+      <td class="right">
+        <span class="delta"><i class="dot ${r.delta<0 ? 'up' : (r.delta>0?'down':'')}"></i>${r.deltaStr}</span>
+      </td>
+    </tr>
+  `).join('');
   countEl.textContent = `${filt.length} drivers`;
 }
-function clearSortActives(){ document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active')); }
+
+function clearSortActives(){ document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active')); }
 function sortByBest(){ rows.sort((a,b)=>a.bestMs-b.bestMs); }
 function sortByFirst(){ rows.sort((a,b)=>parseTime(a.first)-parseTime(b.first)); }
 function sortByAZ(){ rows.sort((a,b)=>a.name.localeCompare(b.name)); }
-function sortByDelta(){ rows.sort((a,b)=>{ const ad=isNaN(a.delta)?Number.POSITIVE_INFINITY:a.delta; const bd=isNaN(b.delta)?Number.POSITIVE_INFINITY:b.delta; return ad-bd; }); }
+function sortByDelta(){
+  rows.sort((a,b)=>{
+    const ad = isNaN(a.delta)?Number.POSITIVE_INFINITY:a.delta;
+    const bd = isNaN(b.delta)?Number.POSITIVE_INFINITY:b.delta;
+    return ad-bd;
+  });
+}
 
-document.querySelector('.sort-btn[data-sort="best"]').addEventListener('click',()=>{ clearSortActives(); document.querySelector('.sort-btn[data-sort="best"]').classList.add('active'); sortByBest(); render(rows); });
-document.querySelector('.sort-btn[data-sort="first"]').addEventListener('click',()=>{ clearSortActives(); document.querySelector('.sort-btn[data-sort="first"]').classList.add('active'); sortByFirst(); render(rows); });
-document.querySelector('.sort-btn[data-sort="az"]').addEventListener('click',()=>{ clearSortActives(); document.querySelector('.sort-btn[data-sort="az"]').classList.add('active'); sortByAZ(); render(rows); });
-document.querySelector('.sort-btn[data-sort="delta"]').addEventListener('click',()=>{ clearSortActives(); document.querySelector('.sort-btn[data-sort="delta"]').classList.add('active'); sortByDelta(); render(rows); });
-qEl.addEventListener('input',()=>render(rows));
+document.querySelector('.sort-btn[data-sort="best"]').addEventListener('click', () => { clearSortActives(); document.querySelector('.sort-btn[data-sort="best"]').classList.add('active'); sortByBest(); render(rows); });
+document.querySelector('.sort-btn[data-sort="first"]').addEventListener('click', () => { clearSortActives(); document.querySelector('.sort-btn[data-sort="first"]').classList.add('active'); sortByFirst(); render(rows); });
+document.querySelector('.sort-btn[data-sort="az"]').addEventListener('click', () => { clearSortActives(); document.querySelector('.sort-btn[data-sort="az"]').classList.add('active'); sortByAZ(); render(rows); });
+document.querySelector('.sort-btn[data-sort="delta"]').addEventListener('click', () => { clearSortActives(); document.querySelector('.sort-btn[data-sort="delta"]').classList.add('active'); sortByDelta(); render(rows); });
 
-sortByBest(); document.querySelector('.sort-btn[data-sort="best"]').classList.add('active'); render(rows);
+qEl.addEventListener('input', () => render(rows));
+
+// Initial sort by Best
+sortByBest();
+document.querySelector('.sort-btn[data-sort="best"]').classList.add('active');
+render(rows);
 })();
 </script>
-
 </body>
 </html>
