@@ -94,7 +94,7 @@
   </div>
 </div>
 
-<!-- Оригиналните вградени данни от v1.3 (fallback) -->
+<!-- Fallback data (unchanged v1.3) -->
 <script id="data" type="application/json">[
   {"name":"Aleksandar Zhelyazkov","first_time":"1:09.036","best_time":"1:09.036"},
   {"name":"Nikola Stanoichev","first_time":"1:12.617","best_time":"1:12.617"},
@@ -111,14 +111,13 @@
 
 <script>
 (async () => {
-// === Variant B (външен JSON през GitHub RAW; без промени по UI/CSS) ===
+// Variant B: external JSON (expects best_time / first_time), NO adapter
 let RAW;
 try {
   const url = 'https://raw.githubusercontent.com/collouur/Karting-ICB-Data/main/drivers.json' + '?v=' + Date.now();
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('status ' + res.status);
   const json = await res.json();
-  // приемаме или { drivers: [...] }, или директно [...]
   RAW = Array.isArray(json) ? json : (json && Array.isArray(json.drivers) ? json.drivers : []);
   if (!RAW || RAW.length === 0) throw new Error('empty payload');
 } catch (e) {
@@ -126,16 +125,9 @@ try {
   RAW = JSON.parse(document.getElementById('data').textContent);
 }
 
-// нормализираме към очакванията на v1.3 (best_time / first_time)
-RAW = RAW.map(d => ({
-  ...d,
-  best_time: d.best_time ?? d.bestLap ?? d.best ?? '—',
-  first_time: d.first_time ?? d.firstLap ?? d.first ?? '—'
-}));
-
-// ======= по-долу е оригиналната логика на v1.3 (без промени) =======
 function parseTime(str){
   if (!str || str==='—') return Number.POSITIVE_INFINITY;
+  // formats: M:SS.mmm  or  SS.mmm
   if (/^\d+:\d{2}\.\d{3}$/.test(str)) {
     const [m, rest] = str.split(':');
     const [s, ms] = rest.split('.');
@@ -179,7 +171,7 @@ function render(list){
   const q = (qEl.value || '').toLowerCase().trim();
   const filt = q ? list.filter(r => r.name.toLowerCase().includes(q)) : list;
 
-  rowsEl.innerHTML = filt.map(r => `
+  const html = filt.map(r => `
     <tr>
       <td class="rank">—</td>
       <td class="name">${r.name}</td>
@@ -190,10 +182,13 @@ function render(list){
       </td>
     </tr>
   `).join('');
+  rowsEl.innerHTML = html;
   countEl.textContent = `${filt.length} drivers`;
 }
 
-function clearSortActives(){ document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active')); }
+function clearSortActives(){
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+}
 function sortByBest(){ rows.sort((a,b)=>a.bestMs-b.bestMs); }
 function sortByFirst(){ rows.sort((a,b)=>parseTime(a.first)-parseTime(b.first)); }
 function sortByAZ(){ rows.sort((a,b)=>a.name.localeCompare(b.name)); }
@@ -205,11 +200,22 @@ function sortByDelta(){
   });
 }
 
-document.querySelector('.sort-btn[data-sort="best"]').addEventListener('click', () => { clearSortActives(); document.querySelector('.sort-btn[data-sort="best"]').classList.add('active'); sortByBest(); render(rows); });
-document.querySelector('.sort-btn[data-sort="first"]').addEventListener('click', () => { clearSortActives(); document.querySelector('.sort-btn[data-sort="first"]').classList.add('active'); sortByFirst(); render(rows); });
-document.querySelector('.sort-btn[data-sort="az"]').addEventListener('click', () => { clearSortActives(); document.querySelector('.sort-btn[data-sort="az"]').classList.add('active'); sortByAZ(); render(rows); });
-document.querySelector('.sort-btn[data-sort="delta"]').addEventListener('click', () => { clearSortActives(); document.querySelector('.sort-btn[data-sort="delta"]').classList.add('active'); sortByDelta(); render(rows); });
-
+document.querySelector('.sort-btn[data-sort="best"]').addEventListener('click', () => {
+  clearSortActives(); document.querySelector('.sort-btn[data-sort="best"]').classList.add('active');
+  sortByBest(); render(rows);
+});
+document.querySelector('.sort-btn[data-sort="first"]').addEventListener('click', () => {
+  clearSortActives(); document.querySelector('.sort-btn[data-sort="first"]').classList.add('active');
+  sortByFirst(); render(rows);
+});
+document.querySelector('.sort-btn[data-sort="az"]').addEventListener('click', () => {
+  clearSortActives(); document.querySelector('.sort-btn[data-sort="az"]').classList.add('active');
+  sortByAZ(); render(rows);
+});
+document.querySelector('.sort-btn[data-sort="delta"]').addEventListener('click', () => {
+  clearSortActives(); document.querySelector('.sort-btn[data-sort="delta"]').classList.add('active');
+  sortByDelta(); render(rows);
+});
 qEl.addEventListener('input', () => render(rows));
 
 // Initial sort by Best
