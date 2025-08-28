@@ -114,7 +114,7 @@
 // Variant B: external JSON (expects best_time / first_time), NO adapter
 let RAW;
 try {
-  const url = 'https://raw.githubusercontent.com/collouur/Karting-ICB-Data/main/drivers.json' + '?v=' + Date.now();
+  const url = 'https://raw.githubusercontent.com/collouur/Karting-ICB-Data/dev/drivers.json' + '?v=' + Date.now();
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('status ' + res.status);
   const json = await res.json();
