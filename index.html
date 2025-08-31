@@ -23,7 +23,7 @@
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif; 
   }
   .top {
-    position: relative; padding: 48px 24px 24px;
+    position: relative; padding: 48px 24px 0;
     background:
       radial-gradient(1000px 280px at 80% -80%, rgba(0,255,169,0.16), transparent 60%),
       radial-gradient(800px 260px at 10% -60%, rgba(255,90,95,0.14), transparent 60%),
@@ -265,7 +265,7 @@ function computeClusters(rows) {
   return map;
 }
 
-// Assign cluster colors (first version: single color, but we'll keep function for potential future use)
+// Assign cluster colors
 function clusterColor(idx) {
   const root = getComputedStyle(document.documentElement);
   return (idx % 2 === 0)
@@ -317,11 +317,11 @@ function render(rows) {
     const badgeHTML = (clusterIdx != null) ? `<span class="battle-badge" data-tip="Battle for ${ordinal(clusterTopPos.get(clusterIdx)||0)} position">🏁 Battle</span>` : '';
 
     tr.innerHTML = `
-      <td class=\"pos\">${posCell}</td>
+      <td class="pos">${posCell}</td>
       <td class="name">${r.name} ${badgeHTML}</td>
       <td class="time">${r.first_time ?? (r.first_ms != null ? formatMs(r.first_ms) : '—')}</td>
       <td class="time">${r.best_time ?? (r.best_ms != null ? formatMs(r.best_ms) : '—')}</td>
-      <td class=\"diff ${diffMs==null? 'muted' : (diffMs<0? 'good' : (diffMs>0? 'bad' : 'neutral'))}\">
+      <td class="diff ${diffMs==null? 'muted' : (diffMs<0? 'good' : (diffMs>0? 'bad' : 'neutral'))}">
         <span class="arrow">${diffMs==null? '•' : (diffMs<0? '▼' : (diffMs>0? '▲' : '→'))}</span>
         <span>${diffMs==null? '—' : (diffMs/1000).toFixed(3).replace(/^-/, '−') + 's'}</span>
       </td>
