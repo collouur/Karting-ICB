@@ -43,7 +43,6 @@
   .delta .up { background: var(--success); }
   .delta .down { background: var(--danger); }
   .foot { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 13px; padding: 12px 16px; }
-  .check { filter: drop-shadow(0 3px 18px rgba(255,255,255,.4)); }
   .note { color: var(--muted); font-size: 13px; margin-top: 8px; }
   .rank { width: 52px; }
   .name { min-width: 220px; }
@@ -63,9 +62,13 @@
 
   <div class="card">
     <div class="toolbar">
+      <div class="search">
+        <input id="q" placeholder="Search driver..." type="search"/>
+      </div>
       <div class="sorts">
         <button class="sort-btn" data-sort="best">Sort by Best</button>
         <button class="sort-btn" data-sort="first">Sort by First</button>
+        <button class="sort-btn" data-sort="az">Sort A–Z</button>
         <button class="sort-btn" data-sort="delta">Sort by Improvement</button>
       </div>
     </div>
@@ -90,7 +93,7 @@
   </div>
 </div>
 
-<!-- Fallback data (unchanged v1.3) -->
+<!-- Вграден fallback (v1.3), ако външният JSON е недостъпен -->
 <script id="data" type="application/json">[
   {"name":"Aleksandar Zhelyazkov","first_time":"1:09.036","best_time":"1:09.036"},
   {"name":"Nikola Stanoichev","first_time":"1:12.617","best_time":"1:12.617"},
@@ -107,9 +110,10 @@
 
 <script>
 (async () => {
-// Variant B: external JSON (expects best_time / first_time), NO adapter
+// Variant B: външен JSON (очаква best_time / first_time), без адаптер
 let RAW;
 try {
+  // ако ползваш jsDelivr, смени URL-а на cdn.jsdelivr.net/gh/...@main/drivers.json
   const url = 'https://raw.githubusercontent.com/collouur/Karting-ICB-Data/main/drivers.json' + '?v=' + Date.now();
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('status ' + res.status);
@@ -117,10 +121,11 @@ try {
   RAW = Array.isArray(json) ? json : (json && Array.isArray(json.drivers) ? json.drivers : []);
   if (!RAW || RAW.length === 0) throw new Error('empty payload');
 } catch (e) {
-  // fallback към вградените данни (точно както v1.3)
+  // падаме към вградените данни (както е във v1.3)
   RAW = JSON.parse(document.getElementById('data').textContent);
 }
 
+// ===== Оригиналната логика на v1.3 (без промени по визията) =====
 function parseTime(str){
   if (!str || str==='—') return Number.POSITIVE_INFINITY;
   // formats: M:SS.mmm  or  SS.mmm
