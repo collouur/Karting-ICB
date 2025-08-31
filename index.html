@@ -6,16 +6,8 @@
 <title>ICB Karting Challenge</title>
 <style>
   :root {
-    --bg: #0b0e13;
-    --card: #131823;
-    --card-2: #0f141d;
-    --text: #e8ecf1;
-    --muted: #a6b0c0;
-    --accent: #E99945;
-    --line: #222a36;
-    --hover: #0c111a;
-    --success: #26a269;
-    --danger: #f25056;
+    --bg: #0b0e13; --card: #131823; --card-2: #0f141d; --text: #e8ecf1; --muted: #a6b0c0;
+    --accent: #E99945; --line: #222a36; --hover: #0c111a; --success: #26a269; --danger: #f25056;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: radial-gradient(1200px 600px at 20% -10%, rgba(233,153,69,.16), transparent 70%), var(--bg); color: var(--text); font: 16px/1.45 Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; }
@@ -26,9 +18,7 @@
   .badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: rgba(233,153,69,.1); border: 1px solid rgba(233,153,69,.24); color: var(--text); font-weight: 600; }
   .badge img { width: 28px; height: 28px; }
   .card { background: linear-gradient(180deg, var(--card), var(--card-2)); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,.35); overflow: hidden; }
-  .toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 14px 16px; background: rgba(12,17,26,.35); }
-  .search { position: relative; flex: 1; }
-  .search input { width: 100%; background: var(--hover); border: 1px solid var(--line); color: var(--text); border-radius: 12px; outline: none; padding: 12px 16px; font-size: 15px; }
+  .toolbar { display: flex; gap: 12px; align-items: center; justify-content: flex-end; border-bottom: 1px solid var(--line); padding: 14px 16px; background: rgba(12,17,26,.35); }
   .sorts { display: flex; gap: 8px; }
   .sort-btn { background: var(--hover); border: 1px solid var(--line); color: var(--text); padding: 10px 12px; border-radius: 999px; cursor: pointer; font-weight: 600; }
   .sort-btn.active { background: rgba(233,153,69,.12); border-color: rgba(233,153,69,.45); }
@@ -56,19 +46,16 @@
       <img alt="" src="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 16h10l3-6h-6l-1.5 3h-2L9 10H3l4 6Z' fill='%23E99945'/%3E%3C/svg%3E"/>
       ICB Karting Challenge
     </span>
-    <h1>ICB Karting Challenge 🏁</h1>
+    <h1>ICB Karting Challenge 🏎️</h1>
   </div>
   <small class="note">Refactor на траекторията → по-бърза обиколка.</small>
 
   <div class="card">
     <div class="toolbar">
-      <div class="search">
-        <input id="q" placeholder="Search driver..." type="search"/>
-      </div>
+      <!-- Махнат Search и A–Z; остават трите бутона -->
       <div class="sorts">
         <button class="sort-btn" data-sort="best">Sort by Best</button>
         <button class="sort-btn" data-sort="first">Sort by First</button>
-        <button class="sort-btn" data-sort="az">Sort A–Z</button>
         <button class="sort-btn" data-sort="delta">Sort by Improvement</button>
       </div>
     </div>
@@ -93,7 +80,7 @@
   </div>
 </div>
 
-<!-- Вграден fallback (v1.3), ако външният JSON е недостъпен -->
+<!-- Fallback данни (v1.3), ако външният JSON е недостъпен -->
 <script id="data" type="application/json">[
   {"name":"Aleksandar Zhelyazkov","first_time":"1:09.036","best_time":"1:09.036"},
   {"name":"Nikola Stanoichev","first_time":"1:12.617","best_time":"1:12.617"},
@@ -110,10 +97,9 @@
 
 <script>
 (async () => {
-// Variant B: външен JSON (очаква best_time / first_time), без адаптер
+// Variant B: външен JSON (очаква best_time / first_time), без адаптер и без Search/A–Z
 let RAW;
 try {
-  // ако ползваш jsDelivr, смени URL-а на cdn.jsdelivr.net/gh/...@main/drivers.json
   const url = 'https://raw.githubusercontent.com/collouur/Karting-ICB-Data/main/drivers.json' + '?v=' + Date.now();
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('status ' + res.status);
@@ -121,14 +107,12 @@ try {
   RAW = Array.isArray(json) ? json : (json && Array.isArray(json.drivers) ? json.drivers : []);
   if (!RAW || RAW.length === 0) throw new Error('empty payload');
 } catch (e) {
-  // падаме към вградените данни (както е във v1.3)
   RAW = JSON.parse(document.getElementById('data').textContent);
 }
 
-// ===== Оригиналната логика на v1.3 (без промени по визията) =====
+// ===== Оригиналната логика на v1.3 (без search и без A–Z) =====
 function parseTime(str){
   if (!str || str==='—') return Number.POSITIVE_INFINITY;
-  // formats: M:SS.mmm  or  SS.mmm
   if (/^\d+:\d{2}\.\d{3}$/.test(str)) {
     const [m, rest] = str.split(':');
     const [s, ms] = rest.split('.');
@@ -151,7 +135,6 @@ function fmtDelta(ms){
 
 const rowsEl = document.getElementById('rows');
 const countEl = document.getElementById('count');
-const qEl = document.getElementById('q');
 
 let rows = RAW.map(d => {
   const best = d.best_time || '—';
@@ -169,10 +152,7 @@ let rows = RAW.map(d => {
 });
 
 function render(list){
-  const q = (qEl.value || '').toLowerCase().trim();
-  const filt = q ? list.filter(r => r.name.toLowerCase().includes(q)) : list;
-
-  const html = filt.map(r => `
+  const html = list.map(r => `
     <tr>
       <td class="rank">—</td>
       <td class="name">${r.name}</td>
@@ -184,15 +164,12 @@ function render(list){
     </tr>
   `).join('');
   rowsEl.innerHTML = html;
-  countEl.textContent = `${filt.length} drivers`;
+  countEl.textContent = `${list.length} drivers`;
 }
 
-function clearSortActives(){
-  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-}
+function clearSortActives(){ document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active')); }
 function sortByBest(){ rows.sort((a,b)=>a.bestMs-b.bestMs); }
 function sortByFirst(){ rows.sort((a,b)=>parseTime(a.first)-parseTime(b.first)); }
-function sortByAZ(){ rows.sort((a,b)=>a.name.localeCompare(b.name)); }
 function sortByDelta(){
   rows.sort((a,b)=>{
     const ad = isNaN(a.delta)?Number.POSITIVE_INFINITY:a.delta;
@@ -209,15 +186,10 @@ document.querySelector('.sort-btn[data-sort="first"]').addEventListener('click',
   clearSortActives(); document.querySelector('.sort-btn[data-sort="first"]').classList.add('active');
   sortByFirst(); render(rows);
 });
-document.querySelector('.sort-btn[data-sort="az"]').addEventListener('click', () => {
-  clearSortActives(); document.querySelector('.sort-btn[data-sort="az"]').classList.add('active');
-  sortByAZ(); render(rows);
-});
 document.querySelector('.sort-btn[data-sort="delta"]').addEventListener('click', () => {
   clearSortActives(); document.querySelector('.sort-btn[data-sort="delta"]').classList.add('active');
   sortByDelta(); render(rows);
 });
-qEl.addEventListener('input', () => render(rows));
 
 // Initial sort by Best
 sortByBest();
