@@ -173,8 +173,9 @@
             <tr>
               <th class="pos-head" style="width:4%;">№</th>
               <th style="width:28%;">Name</th>
-              <th>First-Day Lap</th>
+              <!-- SWAPPED ORDER for v1.3.2: Best Lap Ever comes before First-Day Lap -->
               <th>Best Lap Ever</th>
+              <th>First-Day Lap</th>
               <th>Improvement</th>
             </tr>
           </thead>
@@ -188,7 +189,7 @@
     </div>
   </div>
 
-<script id="data" type="application/json">[{"name": "Aleksandar Zhelyazkov", "first_time": "1:09.036", "best_time": "1:08.036", "first_ms": 69036, "best_ms": 69036}, {"name": "Nikola Stanoichev", "first_time": "1:12.617", "best_time": "1:12.617", "first_ms": 72617, "best_ms": 72617}, {"name": "Yordan Parladiyski", "first_time": "1:12.968", "best_time": "1:12.968", "first_ms": 72968, "best_ms": 72968}, {"name": "Georgi Mihalev", "first_time": "1:15.215", "best_time": "1:15.215", "first_ms": 75215, "best_ms": 75215}, {"name": "Dragomir Yanev", "first_time": "1:15.319", "best_time": "1:15.319", "first_ms": 75319, "best_ms": 75319}, {"name": "Dimitar Slavchev", "first_time": "1:20.936", "best_time": "1:20.936", "first_ms": null, "best_ms": null}, {"name": "Martin Atanasov", "first_time": "1:20.999", "best_time": "1:20.999", "first_ms": null, "best_ms": null}, {"name": "Kostadin Kostadinov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Sergey Prudnikov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Yavor Vasilev", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Varban Varbanov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}]</script>
+<script id="data" type="application/json">[{"name": "Aleksandar Zhelyazkov", "first_time": "1:09.036", "best_time": "1:09.036", "first_ms": 69036, "best_ms": 69036}, {"name": "Nikola Stanoichev", "first_time": "1:12.617", "best_time": "1:12.617", "first_ms": 72617, "best_ms": 72617}, {"name": "Yordan Parladiyski", "first_time": "1:12.968", "best_time": "1:12.968", "first_ms": 72968, "best_ms": 72968}, {"name": "Georgi Mihalev", "first_time": "1:15.215", "best_time": "1:15.215", "first_ms": 75215, "best_ms": 75215}, {"name": "Dragomir Yanev", "first_time": "1:15.319", "best_time": "1:15.319", "first_ms": 75319, "best_ms": 75319}, {"name": "Dimitar Slavchev", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Martin Atanasov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Kostadin Kostadinov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Sergey Prudnikov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Yavor Vasilev", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Varban Varbanov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}]</script>
 <script>
 function parseTimeToMs(s) {
   if (!s || s === "—") return null;
@@ -211,7 +212,7 @@ function formatMs(ms) {
   return `${m}:${String(s).padStart(2,"0")}.${String(mm).padStart(3,"0")}`;
 }
 
-const RAW = JSON.parse(document.getElementById('data').textContent);
+const RAW = JSON.parse(document.getElementById("data").textContent);
 let rows = RAW.map(d => ({
   name: d.name,
   first_time: d.first_time,
@@ -269,8 +270,8 @@ function computeClusters(rows) {
 function clusterColor(idx) {
   const root = getComputedStyle(document.documentElement);
   return (idx % 2 === 0)
-    ? root.getPropertyValue('--battle-1')
-    : root.getPropertyValue('--battle-2');
+    ? root.getPropertyValue("--battle-1")
+    : root.getPropertyValue("--battle-2");
 }
 
 function ordinal(n){ const s=["th","st","nd","rd"], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
@@ -290,69 +291,70 @@ function render(rows) {
       }
     }
   });
-  const tb = document.querySelector('#table tbody');
+  const tb = document.querySelector("#table tbody");
   tb.innerHTML = "";
   let prevCluster = null;
   filtered.forEach((r, i) => {
-    const tr = document.createElement('tr');
+    const tr = document.createElement("tr");
     // Battle styling
     let clusterIdx = null;
     if (clusterMap.has(r.name)) {
       clusterIdx = clusterMap.get(r.name);
-      tr.classList.add('battle-row');
-      tr.style.setProperty('--cluster-color', clusterColor(clusterIdx));
-      if (prevCluster !== clusterIdx) tr.classList.add('cluster-start');
+      tr.classList.add("battle-row");
+      tr.style.setProperty("--cluster-color", clusterColor(clusterIdx));
+      if (prevCluster !== clusterIdx) tr.classList.add("cluster-start");
     }
     prevCluster = clusterIdx === null ? prevCluster : clusterIdx;
     const diffMs = (r.best_ms == null || r.first_ms == null) ? null : (r.best_ms - r.first_ms);
     if (diffMs != null && Math.abs(diffMs) <= 300) {
-      tr.classList.add('pulse');
+      tr.classList.add("pulse");
     }
 
     const isEmpty = (r.first_ms == null && r.best_ms == null);
-    const medal = !isEmpty && (i===0?'🥇': i===1?'🥈': i===2?'🥉': null);
-    const medalCls = !isEmpty && (i===0?'gold': i===1?'silver': i===2?'bronze': null);
-    const posCell = isEmpty ? '—' : (medal ? `<span class="medal ${medalCls}">${medal}</span>` : (i+1));
+    const medal = !isEmpty && (i===0?"🥇": i===1?"🥈": i===2?"🥉": null);
+    const medalCls = !isEmpty && (i===0?"gold": i===1?"silver": i===2?"bronze": null);
+    const posCell = isEmpty ? "—" : (medal ? `<span class="medal ${medalCls}">${medal}</span>` : (i+1));
 
-    const badgeHTML = (clusterIdx != null) ? `<span class="battle-badge" data-tip="Battle for ${ordinal(clusterTopPos.get(clusterIdx)||0)} position">🏁 Battle</span>` : '';
+    const badgeHTML = (clusterIdx != null) ? `<span class="battle-badge" data-tip="Battle for ${ordinal(clusterTopPos.get(clusterIdx)||0)} position">🏁 Battle</span>` : "";
 
     tr.innerHTML = `
       <td class="pos">${posCell}</td>
       <td class="name">${r.name} ${badgeHTML}</td>
-      <td class="time">${r.first_time ?? (r.first_ms != null ? formatMs(r.first_ms) : '—')}</td>
-      <td class="time">${r.best_time ?? (r.best_ms != null ? formatMs(r.best_ms) : '—')}</td>
-      <td class="diff ${diffMs==null? 'muted' : (diffMs<0? 'good' : (diffMs>0? 'bad' : 'neutral'))}">
-        <span class="arrow">${diffMs==null? '•' : (diffMs<0? '▼' : (diffMs>0? '▲' : '→'))}</span>
-        <span>${diffMs==null? '—' : (diffMs/1000).toFixed(3).replace(/^-/, '−') + 's'}</span>
+      <!-- SWAPPED ORDER for v1.3.2: Best first, then First-Day -->
+      <td class="time">${r.best_time ?? (r.best_ms != null ? formatMs(r.best_ms) : "—")}</td>
+      <td class="time">${r.first_time ?? (r.first_ms != null ? formatMs(r.first_ms) : "—")}</td>
+      <td class="diff ${diffMs==null? "muted" : (diffMs<0? "good" : (diffMs>0? "bad" : "neutral"))}">
+        <span class="arrow">${diffMs==null? "•" : (diffMs<0? "▼" : (diffMs>0? "▲" : "→"))}</span>
+        <span>${diffMs==null? "—" : (diffMs/1000).toFixed(3).replace(/^-/, "−") + "s"}</span>
       </td>
     `;
     tb.appendChild(tr);
   });
-  document.getElementById('count').textContent = `${filtered.length} drivers`;
+  document.getElementById("count").textContent = `${filtered.length} drivers`;
 }
 
-document.querySelectorAll('.sort-btn').forEach(btn => {
-  btn.addEventListener('click', e => {
-    document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
+document.querySelectorAll(".sort-btn").forEach(btn => {
+  btn.addEventListener("click", e => {
+    document.querySelectorAll(".sort-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
     const k = btn.dataset.sort;
-    if (k === 'best') sortByBest();
-    else if (k === 'first') sortByFirst();
-    else if (k === 'improve') sortByImprove();
+    if (k === "best") sortByBest();
+    else if (k === "first") sortByFirst();
+    else if (k === "improve") sortByImprove();
     
     render(rows);
   });
 });
 
 // Raise hovered battle row above neighbors so its tooltip isn't covered
-const tableEl = document.getElementById('table');
-tableEl.addEventListener('mouseover', (e) => {
-  const badge = e.target.closest('.battle-badge');
-  if (badge) badge.closest('tr')?.classList.add('row-raise');
+const tableEl = document.getElementById("table");
+tableEl.addEventListener("mouseover", (e) => {
+  const badge = e.target.closest(".battle-badge");
+  if (badge) badge.closest("tr")?.classList.add("row-raise");
 });
-tableEl.addEventListener('mouseout', (e) => {
-  const badge = e.target.closest('.battle-badge');
-  if (badge) badge.closest('tr')?.classList.remove('row-raise');
+tableEl.addEventListener("mouseout", (e) => {
+  const badge = e.target.closest(".battle-badge");
+  if (badge) badge.closest("tr")?.classList.remove("row-raise");
 });
 
 // Initial sort by Best
