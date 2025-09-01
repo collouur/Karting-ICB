@@ -75,7 +75,9 @@
 .cluster-start { box-shadow: inset 4px 0 0 var(--cluster-color, #845ef7), 0 -1px 0 0 var(--cluster-color, #845ef7); }
   .pulse { animation: pulseGlow 1.5s infinite; }
   @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(0,255,169,0.25); } 70% { box-shadow: 0 0 0 10px rgba(0,255,169,0.0); } 100% { box-shadow: 0 0 0 0 rgba(0,255,169,0.0); } }
-.logo-emoji { font-size: 1.3em; margin-right: 8px; }
+
+:root{ --logo-h:auto; --logo-gap:8px; }
+.logo-img{ height:var(--logo-h); width:auto; margin-right:var(--logo-gap); vertical-align:middle; }
 .medal.gold, .medal.silver, .medal.bronze { text-shadow: none; }
 .sort-label { color: var(--muted); font-size: 14px; letter-spacing:.2px; opacity:.95; }
 /* Custom tooltips for sort pills */
@@ -132,7 +134,7 @@
   color: #0b0e13; /* good contrast on bright cluster colors */
   font-size:12px; line-height:1;
   padding:8px 10px; border-radius:3px; white-space: nowrap; pointer-events:none;
-  opacity:0; box-shadow: 0 6px 18px rgba(0,0,0,.35); 
+  opacity:0; box-shadow: 0 6px 18px rgba(0,0,0,.35);
   transition: opacity .15s ease, transform .15s ease; z-index: 1000;
 }
 .battle-badge[data-tip]::before{
@@ -154,7 +156,10 @@
   <div class="top">
     <div class="wrap">
       <div class="flag" aria-hidden="true"></div>
-      <h1><span class="logo-emoji" aria-hidden="true">🏎️</span>&nbsp; ICB Karting Challenge 🏁</h1>
+      <h1>
+  <img src="./assets/karting-icon.png" class="logo-img" alt="" aria-hidden="true" decoding="async" />
+  ICB Karting Challenge 🏁
+</h1>
       <div class="subtitle">Refactor на траекторията → по-бърза обиколка.</div>
     </div>
   </div>
