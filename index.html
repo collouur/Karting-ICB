@@ -132,7 +132,7 @@
   color: #0b0e13; /* good contrast on bright cluster colors */
   font-size:12px; line-height:1;
   padding:8px 10px; border-radius:3px; white-space: nowrap; pointer-events:none;
-  opacity:0; box-shadow: 0 6px 18px rgba(0,0,0,.35);
+  opacity:0; box-shadow: 0 6px 18px rgba(0,0,0,.35); 
   transition: opacity .15s ease, transform .15s ease; z-index: 1000;
 }
 .battle-badge[data-tip]::before{
@@ -189,7 +189,7 @@
     </div>
   </div>
 
-<script id="data" type="application/json">[{"name": "Aleksandar Zhelyazkov", "first_time": "1:09.036", "best_time": "1:09.036", "first_ms": 69036, "best_ms": 69036}, {"name": "Nikola Stanoichev", "first_time": "1:12.617", "best_time": "1:12.617", "first_ms": 72617, "best_ms": 72617}, {"name": "Yordan Parladiyski", "first_time": "1:12.968", "best_time": "1:12.968", "first_ms": 72968, "best_ms": 72968}, {"name": "Georgi Mihalev", "first_time": "1:15.215", "best_time": "1:15.215", "first_ms": 75215, "best_ms": 75215}, {"name": "Dragomir Yanev", "first_time": "1:15.319", "best_time": "1:15.319", "first_ms": 75319, "best_ms": 75319}, {"name": "Dimitar Slavchev", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Martin Atanasov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Kostadin Kostadinov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Sergey Prudnikov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Yavor Vasilev", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}, {"name": "Varban Varbanov", "first_time": "—", "best_time": "—", "first_ms": null, "best_ms": null}]</script>
+<script id="data" type="application/json">[{"name": "Aleksandar Zhelyazkov", "first_time": "1:09.036", "best_time": "1:09.036"}, {"name": "Nikola Stanoichev", "first_time": "1:12.617", "best_time": "1:12.617"}, {"name": "Yordan Parladiyski", "first_time": "1:12.968", "best_time": "1:12.968"}, {"name": "Georgi Mihalev", "first_time": "1:15.215", "best_time": "1:15.215"}, {"name": "Dragomir Yanev", "first_time": "1:15.319", "best_time": "1:15.319"}, {"name": "Dimitar Slavchev", "first_time": "1:20.936", "best_time": "1:20.936"}, {"name": "Martin Atanasov", "first_time": "1:20.999", "best_time": "1:20.999"}, {"name": "Kostadin Kostadinov", "first_time": "—", "best_time": "—"}, {"name": "Sergey Prudnikov", "first_time": "—", "best_time": "—"}, {"name": "Yavor Vasilev", "first_time": "—", "best_time": "—"}, {"name": "Varban Varbanov", "first_time": "—", "best_time": "—"}]</script>
 <script>
 function parseTimeToMs(s) {
   if (!s || s === "—") return null;
@@ -202,14 +202,12 @@ function parseTimeToMs(s) {
   const ms = parseInt((msStr + "000").slice(0,3), 10);
   return (m*60 + sec)*1000 + ms;
 }
-function formatMs(ms) {
-  if (ms === null || ms === undefined) return "—";
-  ms = Math.round(ms);
-  const m = Math.floor(ms/60000);
-  const rem = ms % 60000;
-  const s = Math.floor(rem/1000);
-  const mm = rem % 1000;
-  return `${m}:${String(s).padStart(2,"0")}.${String(mm).padStart(3,"0")}`;
+
+function fmtDelta(ms){
+  if (ms == null) return '—';
+  const s = (Math.abs(ms)/1000).toFixed(3);
+  const sign = ms < 0 ? '−' : (ms > 0 ? '+' : '');
+  return sign + s + 's';
 }
 
 const RAW = JSON.parse(document.getElementById("data").textContent);
@@ -217,8 +215,8 @@ let rows = RAW.map(d => ({
   name: d.name,
   first_time: d.first_time,
   best_time: (d.best_time && d.best_time !== "—") ? d.best_time : d.first_time,
-  first_ms: (d.first_ms != null) ? d.first_ms : parseTimeToMs(d.first_time),
-  best_ms:  (d.best_ms  != null) ? d.best_ms  : ( (d.best_time && d.best_time !== "—") ? parseTimeToMs(d.best_time) : parseTimeToMs(d.first_time) ),
+  first_ms: parseTimeToMs(d.first_time),
+  best_ms:  (d.best_time && d.best_time !== "—") ? parseTimeToMs(d.best_time) : parseTimeToMs(d.first_time),
 }));
 
 function sortByBest() { rows.sort((a,b) => (a.best_ms??Infinity) - (b.best_ms??Infinity)); }
@@ -313,19 +311,19 @@ function render(rows) {
     const isEmpty = (r.first_ms == null && r.best_ms == null);
     const medal = !isEmpty && (i===0?"🥇": i===1?"🥈": i===2?"🥉": null);
     const medalCls = !isEmpty && (i===0?"gold": i===1?"silver": i===2?"bronze": null);
-    const posCell = isEmpty ? "—" : (medal ? `<span class="medal ${medalCls}">${medal}</span>` : (i+1));
+    const posCell = isEmpty ? "—" : (medal ? `<span class=\"medal ${medalCls}\">${medal}</span>` : (i+1));
 
-    const badgeHTML = (clusterIdx != null) ? `<span class="battle-badge" data-tip="Battle for ${ordinal(clusterTopPos.get(clusterIdx)||0)} position">🏁 Battle</span>` : "";
+    const badgeHTML = (clusterIdx != null) ? `<span class=\"battle-badge\" data-tip=\"Battle for ${ordinal(clusterTopPos.get(clusterIdx)||0)} position\">🏁 Battle</span>` : "";
 
     tr.innerHTML = `
-      <td class="pos">${posCell}</td>
-      <td class="name">${r.name} ${badgeHTML}</td>
+      <td class=\"pos\">${posCell}</td>
+      <td class=\"name\">${r.name} ${badgeHTML}</td>
       <!-- SWAPPED ORDER for v1.3.2: Best first, then First-Day -->
-      <td class="time">${r.best_time ?? (r.best_ms != null ? formatMs(r.best_ms) : "—")}</td>
-      <td class="time">${r.first_time ?? (r.first_ms != null ? formatMs(r.first_ms) : "—")}</td>
-      <td class="diff ${diffMs==null? "muted" : (diffMs<0? "good" : (diffMs>0? "bad" : "neutral"))}">
-        <span class="arrow">${diffMs==null? "•" : (diffMs<0? "▼" : (diffMs>0? "▲" : "→"))}</span>
-        <span>${diffMs==null? "—" : (diffMs/1000).toFixed(3).replace(/^-/, "−") + "s"}</span>
+      <td class=\"time\">${r.best_time ?? (r.best_ms != null ? formatMs(r.best_ms) : "—")}</td>
+      <td class=\"time\">${r.first_time ?? (r.first_ms != null ? formatMs(r.first_ms) : "—")}</td>
+      <td class=\"diff ${diffMs==null? "muted" : (diffMs<0? "good" : (diffMs>0? "bad" : "neutral"))}\">
+        <span class=\"arrow\">${diffMs==null? "•" : (diffMs<0? "▼" : (diffMs>0? "▲" : "→"))}</span>
+        <span>${fmtDelta(diffMs) }</span>
       </td>
     `;
     tb.appendChild(tr);
