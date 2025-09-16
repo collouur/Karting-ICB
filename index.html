@@ -269,7 +269,7 @@ function render(rows) {
   filtered.forEach((r, i) => {
     const tr = document.createElement('tr');
     let clusterIdx = null;
-    if (clusterMap.has(r.name)) { clusterIdx = clusterMap.get(r.name); tr.classList.add('battle-row'); tr.style.setProperty('--cluster-color', clusterColor(clusterIdx)); if (prevCluster !== clusterIdx) tr.classList.add('cluster-start'); }
+    if (clusterMap.has(r.name)) { clusterIdx = clusterMap.get(r.name); tr.classList.add('battle-row'); tr.style.setProperty('--cluster-color', clusterColor(clusterIdx)); }
     prevCluster = clusterIdx === null ? prevCluster : clusterIdx;
 
     const diffMs = (r.best_ms == null || r.first_ms == null) ? null : (r.best_ms - r.first_ms);
