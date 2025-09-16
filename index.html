@@ -289,7 +289,6 @@ function render(rows) {
       <td class="time">${r.best_time ?? (r.best_ms != null ? formatMs(r.best_ms) : '—')}</td>
       <td class="time">${r.first_time ?? (r.first_ms != null ? formatMs(r.first_ms) : '—')}</td>
       <td class="diff ${diffMs==null? 'muted' : (diffMs<0? 'good' : (diffMs>0? 'bad' : 'neutral'))}">
-        <span class="arrow">${diffMs==null? '•' : (diffMs<0? '▼' : (diffMs>0? '▲' : '→'))}</span>
         <span>${fmtDelta(diffMs)}</span>
       </td>`;
     tb.appendChild(tr);
