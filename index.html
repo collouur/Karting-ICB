@@ -119,14 +119,14 @@
   .pill[data-tip]:hover::after, .pill[data-tip]:focus-visible::after{ opacity:1; transform: translateX(-50%) translateY(0); }
   .pill[data-tip]:hover::before, .pill[data-tip]:focus-visible::before{ opacity:1; }
 
-  .toolbar { position: relative; z-index: 5; }
+  .toolbar { position: relative; z-index: 3; }
   .pill[data-tip]::after{ top: calc(100% + 8px); bottom: auto; transform: translateX(-50%) translateY(-4px); }
   .pill[data-tip]::before{ top: calc(100% + 2px); bottom: auto; border:6px solid transparent; border-bottom-color: var(--accent); }
 
-  .battle-badge[data-tip]{ position:relative; z-index:2; }
+  .battle-badge[data-tip]{ position:relative; z-index:1; }
   .battle-badge[data-tip]::after{ content: attr(data-tip); position:absolute; top: calc(100% + 8px); left: 0; transform: translateY(-4px);
     background: var(--cluster-color, #845ef7); color: #0b0e13; font-size:12px; line-height:1; padding:8px 10px; border-radius:3px; white-space: nowrap; pointer-events:none; opacity:0;
-    box-shadow: 0 6px 18px rgba(0,0,0,.35); transition: opacity .15s ease, transform .15s ease; z-index: 1000; }
+    box-shadow: 0 6px 18px rgba(0,0,0,.35); transition: opacity .15s ease, transform .15s ease; z-index: 1; }
   .battle-badge[data-tip]::before{ content:""; position:absolute; top: calc(100% + 2px); left: 12px; border:6px solid transparent; border-bottom-color: var(--cluster-color, #845ef7); opacity:0; transition: opacity .15s ease; z-index: 999; }
   .battle-badge[data-tip]:hover::after, .battle-badge[data-tip]:focus-visible::after{ opacity:1; transform: translateY(0); }
   .battle-badge[data-tip]:hover::before, .battle-badge[data-tip]:focus-visible::before{ opacity:1; }
