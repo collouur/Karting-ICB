@@ -591,9 +591,9 @@ function renderTrackHeader() {
     svg.style.margin = '0 auto';
 
     if (currentTrack === 'krasna-polyana') {
-      /* keep it large (no shrink), avoid clipping by slight lift + smaller buffer */
-      svg.style.maxHeight = 'calc(100% - 26px)';
-      svg.style.transform = 'translateY(-6px) scale(1.32)';
+      /* exact correction so the main straight is horizontal */
+      svg.style.maxHeight = 'calc(100% - 34px)';
+      svg.style.transform = 'translateY(-4px) rotate(21.46deg) scale(1.6)';
     } else {
       svg.style.maxHeight = 'calc(100% - 16px)';
       svg.style.transform = 'translateY(0) scale(1)';
