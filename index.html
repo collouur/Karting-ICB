@@ -444,13 +444,25 @@ function fmtDelta(ms){
 }
 
 function hydrateRows(raw) {
-  return raw.map(d => ({
+  const hydrated = raw.map(d => ({
     name: d.name,
     first_time: d.first_time,
     best_time: (d.best_time && d.best_time !== "—") ? d.best_time : d.first_time,
     first_ms: parseTimeToMs(d.first_time),
     best_ms: (d.best_time && d.best_time !== "—") ? parseTimeToMs(d.best_time) : parseTimeToMs(d.first_time),
+    points: 0,
   }));
+
+  const bestRanked = hydrated
+    .filter(r => r.best_ms != null)
+    .slice()
+    .sort((a, b) => a.best_ms - b.best_ms);
+
+  bestRanked.forEach((r, i) => {
+    r.points = Math.max(15 - i, 0);
+  });
+
+  return hydrated;
 }
 
 function sortByBest() {
@@ -560,7 +572,7 @@ function renderTable() {
       ? `<span class="battle-badge" data-tip="Battle for ${ordinal(clusterTopPos.get(clusterIdx)||0)} position">🏁 Battle</span>`
       : '';
 
-    const points = isEmpty ? '—' : Math.max(15 - i, 0);
+    const points = isEmpty ? '—' : r.points;
 
     tr.innerHTML = `
       <td class="pos">${posCell}</td>
@@ -606,14 +618,10 @@ function renderTrackHeader() {
 
 function calculatePointsForTrack(trackKey) {
   const tempRows = hydrateRows(TRACKS[trackKey].data);
-  tempRows.sort((a,b) => (a.best_ms ?? Infinity) - (b.best_ms ?? Infinity));
-
   const pointsMap = new Map();
 
-  tempRows.forEach((r, i) => {
-    const isEmpty = (r.first_ms == null && r.best_ms == null);
-    const pts = isEmpty ? 0 : Math.max(15 - i, 0);
-    pointsMap.set(r.name, pts);
+  tempRows.forEach((r) => {
+    pointsMap.set(r.name, r.points || 0);
   });
 
   return pointsMap;
