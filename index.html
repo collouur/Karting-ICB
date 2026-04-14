@@ -242,7 +242,10 @@
 
   .pulse { animation: pulseGlow 1.5s infinite; }
   @keyframes pulseGlow {
-    0% { box-shadow: 0 0 0 0 rgba(0,255,169,0.25); }
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cluster-color, #845ef7) 40%, transparent); }
+    70% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--cluster-color, #845ef7) 0%, transparent); }
+    100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cluster-color, #845ef7) 0%, transparent); }
+  }
     70% { box-shadow: 0 0 0 10px rgba(0,255,169,0.0); }
     100% { box-shadow: 0 0 0 0 rgba(0,255,169,0.0); }
   }
@@ -547,7 +550,7 @@ function renderTable() {
     }
 
     const diffMs = (r.best_ms == null || r.first_ms == null) ? null : (r.best_ms - r.first_ms);
-    if (diffMs != null && Math.abs(diffMs) <= 300) tr.classList.add('pulse');
+    if (clusterMap.has(r.name)) tr.classList.add('pulse');
 
     const isEmpty = (r.first_ms == null && r.best_ms == null);
     const medal = !isEmpty && (i===0 ? '🥇' : i===1 ? '🥈' : i===2 ? '🥉' : null);
