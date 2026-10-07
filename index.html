@@ -617,7 +617,7 @@ Timing system: Racefacer</p>
       .sort((a, b) => a.best_ms - b.best_ms);
 
     bestRanked.forEach((r, i) => {
-      r.points = Math.max(15 - i, 0);
+      r.points = [30, 23, 20, 17, 15, 13, 11, 9, 7, 6, 5, 4, 3, 2, 1][i] || 0;
     });
 
     return hydrated;
