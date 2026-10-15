@@ -182,6 +182,18 @@
     white-space: pre-line;
   }
 
+  .track-details { display: grid; grid-template-columns: repeat(4, max-content); gap: 24px; margin-top: 20px; color: var(--muted); font-size: 14px; line-height: 1.45; overflow-x: auto; }
+  .track-detail-value { color: #fff; }
+  .racing-line-btn { margin-top: 20px; padding: 8px 12px; background: transparent; border: 1px solid var(--accent); border-radius: 6px; color: var(--accent); font: inherit; font-size: 13px; cursor: pointer; }
+  .racing-line-btn:hover { background: rgba(233,153,69,.12); }
+  .racing-line-modal { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.82); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .racing-line-modal[hidden] { display: none; }
+  .racing-line-dialog { position: relative; box-sizing: border-box; width: min(100%, 1000px); max-height: 90vh; overflow: auto; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); box-shadow: 0 20px 70px rgba(0,0,0,.6); }
+  .racing-line-dialog h2 { margin: 4px 48px 8px 0; font-size: 28px; }
+  .racing-line-dialog p { color: var(--muted); margin: 0 0 18px; font-size: 14px; }
+  .racing-line-dialog img { display: block; width: 100%; max-height: 65vh; object-fit: contain; border-radius: 8px; }
+  .racing-line-close { position: absolute; top: 18px; right: 18px; border: 1px solid var(--line); background: var(--card-2); color: var(--text); border-radius: 8px; padding: 7px 12px; font-size: 22px; cursor: pointer; }
+
   .track-art {
     display: flex;
     justify-content: center;
@@ -474,10 +486,9 @@
       <div>
         <div class="track-kicker" id="track-kicker">Track Profile</div>
         <h2 class="track-title" id="track-title">Krasna Polyana</h2>
-        <p class="track-copy" id="track-copy">Length: 960 meters
-Turns: 16
-Surface: Asphalt
-Timing system: Racefacer</p>
+        <p class="track-copy" id="track-copy" hidden></p>
+        <div class="track-details" id="track-details"></div>
+        <button type="button" class="racing-line-btn" id="racing-line-btn">View Racing Line ↗</button>
       </div>
       <div class="track-art" id="track-art" aria-hidden="true"></div>
     </section>
@@ -511,10 +522,21 @@ Timing system: Racefacer</p>
     </div>
   </div>
 
+<div class="racing-line-modal" id="racing-line-modal" hidden>
+  <div class="racing-line-dialog" role="dialog" aria-modal="true" aria-labelledby="racing-line-title">
+    <button type="button" class="racing-line-close" id="racing-line-close" aria-label="Close">×</button>
+    <div class="track-kicker">Racing Line</div>
+    <h2 id="racing-line-title"></h2>
+    <p>Recommended racing line for optimal lap times.</p>
+    <img id="racing-line-image" alt="Racing line map" />
+  </div>
+</div>
+
 <script>
   const TRACKS = {
     'krasna-polyana': {
       title: 'Krasna Polyana',
+      racingLineImage: './assets/KrasnaPolyana_RacingLine.jpeg',
       copy: `Length: 960 meters\nTurns: 16\nSurface: Asphalt\nTiming system: Racefacer`,
       art: `
         <svg viewBox="-42 -60 320 310" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -541,6 +563,7 @@ Timing system: Racefacer</p>
     },
     'ring-mall': {
       title: 'Ring Mall',
+      racingLineImage: './assets/RingMall_RacingLine.jpeg',
       copy: `Length: 610 meters\nTurns: 17\nSurface: High-grip epoxy coating\nTiming system: Racefacer`,
       art: `
         <svg viewBox="-10 -10 317 194" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -791,6 +814,7 @@ Timing system: Racefacer</p>
     const track = TRACKS[currentTrack];
     document.getElementById('track-title').textContent = track.title;
     document.getElementById('track-copy').textContent = track.copy;
+    document.getElementById('track-details').innerHTML = track.copy.split('\n').map(item => { const separator = item.indexOf(':'); return `<span>${item.slice(0, separator + 1)} <span class="track-detail-value">${item.slice(separator + 1).trim()}</span></span>`; }).join('');
     const artEl = document.getElementById('track-art');
     artEl.innerHTML = track.art;
     artEl.style.justifyContent = 'center';
@@ -831,6 +855,9 @@ Timing system: Racefacer</p>
       document.getElementById('track-kicker').textContent = 'Drivers';
       document.getElementById('track-title').textContent = 'Championship';
       document.getElementById('track-copy').textContent = 'Total points across all tracks.';
+      document.getElementById('track-copy').hidden = false;
+      document.getElementById('track-details').hidden = true;
+      document.getElementById('racing-line-btn').hidden = true;
       document.getElementById('track-art').innerHTML = '<div class="medals-hero"><span>🥈</span><span class="gold-big">🥇</span><span>🥉</span></div>';
       toolbar.style.display = 'none';
       tableHead.innerHTML = `
@@ -845,6 +872,9 @@ Timing system: Racefacer</p>
       rows = hydrateRows(TRACKS[trackKey].data);
       document.getElementById('track-kicker').textContent = 'Track Profile';
       renderTrackHeader();
+      document.getElementById('track-copy').hidden = true;
+      document.getElementById('track-details').hidden = false;
+      document.getElementById('racing-line-btn').hidden = false;
       toolbar.style.display = 'flex';
       tableHead.innerHTML = `
         <tr>
@@ -871,6 +901,33 @@ Timing system: Racefacer</p>
 
   document.querySelectorAll('.track-tab').forEach(tab => {
     tab.addEventListener('click', () => setTrack(tab.dataset.track));
+  });
+
+  const racingLineModal = document.getElementById('racing-line-modal');
+  const racingLineButton = document.getElementById('racing-line-btn');
+  const racingLineClose = document.getElementById('racing-line-close');
+  function closeRacingLine() {
+    racingLineModal.hidden = true;
+    document.body.style.overflow = '';
+    racingLineButton.focus();
+  }
+  racingLineButton.addEventListener('click', () => {
+    const track = TRACKS[currentTrack];
+    if (!track) return;
+    document.getElementById('racing-line-title').textContent = track.title;
+    const img = document.getElementById('racing-line-image');
+    img.alt = `Racing line for ${track.title}`;
+    img.src = track.racingLineImage;
+    racingLineModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    racingLineClose.focus();
+  });
+  racingLineClose.addEventListener('click', closeRacingLine);
+  racingLineModal.addEventListener('click', event => {
+    if (event.target === racingLineModal) closeRacingLine();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !racingLineModal.hidden) closeRacingLine();
   });
 
   setSort('best');
