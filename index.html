@@ -917,6 +917,10 @@
     document.getElementById('racing-line-title').textContent = track.title;
     const img = document.getElementById('racing-line-image');
     img.alt = `Racing line for ${track.title}`;
+    img.onerror = () => {
+      img.onerror = null;
+      img.src = 'https://raw.githubusercontent.com/collouur/Karting-ICB/main/' + track.racingLineImage.replace(/^\.\//, '');
+    };
     img.src = track.racingLineImage;
     racingLineModal.hidden = false;
     document.body.style.overflow = 'hidden';
