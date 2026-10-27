@@ -858,7 +858,8 @@
       document.getElementById('track-title').textContent = 'Championship';
       document.getElementById('track-copy').textContent = 'Total points across all tracks.';
       document.getElementById('track-copy').hidden = false;
-      document.getElementById('track-details').hidden = true;
+      document.getElementById('track-details').innerHTML = '<span>Писти:<br><span class="track-detail-value">Krasna Polyana<br>Sofia Karting Ring Mall</span></span>';
+      document.getElementById('track-details').hidden = false;
       document.getElementById('racing-line-btn').hidden = true;
       document.getElementById('track-art').innerHTML = '<div class="medals-hero"><span>🥈</span><span class="gold-big">🥇</span><span>🥉</span></div>';
       toolbar.style.display = 'none';
